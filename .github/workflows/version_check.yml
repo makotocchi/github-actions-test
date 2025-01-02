@@ -35,11 +35,9 @@ jobs:
           cd ${{ github.workspace }}/current
           version=( $(jq '.version' build_settings.json))
           echo "Current version is ${version:1:${#version}-2}"
-
-      - name: Compare versions
-        run: |
           if [ "${old_version:1:${#old_version}-2}" != "${version:1:${#version}-2}" ]; then
             echo "Version incremented"
           else
             echo "::warning file=build_settings.json,title=Version not incremented::Version not incremented"
+            exit 1
           fi
