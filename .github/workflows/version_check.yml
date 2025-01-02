@@ -10,4 +10,8 @@ jobs:
       pull-requests: write
 
     steps:
-    - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check current version
+        run: |
+          cd ${{ github.workspace }}
+          version=( $(jq '.version' build_settings.json))
+          echo "${version:1:${#version}-2}"
