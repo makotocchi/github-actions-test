@@ -13,7 +13,7 @@ jobs:
       - name: Check out base branch repository code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.pull_request.base.ref }}
           sparse-checkout: |
             build_settings.json
 
