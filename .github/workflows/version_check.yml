@@ -13,7 +13,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
-          ref: $GITHUB_REF
+          ref: ${{ github.head_ref }}
+          sparse-checkout: |
+            build_settings.json
       - name: Check current version
         run: |
           cd ${{ github.workspace }}
