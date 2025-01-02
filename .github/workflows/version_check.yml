@@ -1,13 +1,14 @@
 name: Version Check
+run-name: Version Check for "${{ github.event.pull_request.title }}"
 on: [pull_request_target]
 
 jobs:
-  label:
+  version-fetch:
 
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
 
     steps:
       - name: Check out base branch repository code
@@ -18,12 +19,6 @@ jobs:
           sparse-checkout: |
             build_settings.json
 
-      - name: Check old build_settings.json version
-        run: |
-          cd ${{ github.workspace }}/old
-          old_version=( $(jq '.version' build_settings.json))
-          echo "Old version is ${old_version:1:${#old_version}-2}"
-
       - name: Check out current commit repository code
         uses: actions/checkout@v4
         with:
@@ -32,8 +27,19 @@ jobs:
           sparse-checkout: |
             build_settings.json
 
-      - name: Check current build_settings.json version
+      - name: Check build_settings.json version
         run: |
+          cd ${{ github.workspace }}/old
+          old_version=( $(jq '.version' build_settings.json))
+          echo "Old version is ${old_version:1:${#old_version}-2}"
           cd ${{ github.workspace }}/current
           version=( $(jq '.version' build_settings.json))
           echo "Current version is ${version:1:${#version}-2}"
+
+      - name: Compare versions
+        run: |
+          if [ "${old_version:1:${#old_version}-2}" != "${version:1:${#version}-2}" ]; then
+            echo "Version incremented"
+          else
+            echo "::warning file=build_settings.json,title=Version not incremented::Version not incremented"
+          fi
