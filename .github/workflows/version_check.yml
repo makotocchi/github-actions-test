@@ -25,9 +25,6 @@ jobs:
 
       - name: Check out current commit repository code
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            build_settings.json
 
       - name: Check current build_settings.json version
         run: |
