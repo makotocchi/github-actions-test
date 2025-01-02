@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          ref: $GITHUB_REF
       - name: Check current version
         run: |
           cd ${{ github.workspace }}
