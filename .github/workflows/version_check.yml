@@ -25,6 +25,10 @@ jobs:
 
       - name: Check out current commit repository code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          sparse-checkout: |
+            build_settings.json
 
       - name: Check current build_settings.json version
         run: |
