@@ -1,7 +1,8 @@
 name: Version Update
 run-name: Version Update for "${{ github.event.pull_request.title }}"
-on: issue_comment
-  types: [edited]
+on: 
+  issue_comment:
+    types: [edited]
 
 jobs:
   version-update:
