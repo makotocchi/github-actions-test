@@ -36,6 +36,11 @@ jobs:
           echo "OLD_VERSION=old_version" >> "$GITHUB_OUTPUT"
           echo "CURRENT_VERSION=current_version" >> "$GITHUB_OUTPUT"
 
+      - name: Test output
+        run: |
+          echo ${{ steps.setter.outputs.OLD_VERSION }}
+          echo ${{ steps.setter.outputs.CURRENT_VERSION }}
+
       - name: Comment if version not updated
         if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
