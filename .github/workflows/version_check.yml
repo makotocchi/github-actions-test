@@ -44,7 +44,7 @@ jobs:
           fi
 
       - name: Check for version increment
-        if: steps.setter.outputs.OLD_VERSION != steps.setter.outputs.CURRENT_VERSION
+        if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
