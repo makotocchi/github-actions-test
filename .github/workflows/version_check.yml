@@ -31,7 +31,9 @@ jobs:
         id: version_check
         run: |
           old_version=( $(jq '.version' ./old/build_settings.json))
+          old_version=${old_version:1:${#old_version}-2}
           current_version=( $(jq '.version' ./current/build_settings.json))
+          current_version=${current_version:1:${#current_version}-2}
           echo "OLD_VERSION=$old_version" >> "$GITHUB_OUTPUT"
           echo "CURRENT_VERSION=$current_version" >> "$GITHUB_OUTPUT"
 
@@ -49,6 +51,7 @@ jobs:
           number: ${{ github.event.number }}
           id: version-not-updated-message
           message: "The build settings version was not updated. Did you mean to do that?\n
+            Click one of the options below if you want me to update the version.\n
             - [ ] Increment patch\n
             - [ ] Increment minor\n
             - [ ] Increment major"
