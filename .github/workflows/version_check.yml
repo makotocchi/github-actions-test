@@ -48,9 +48,9 @@ jobs:
           repository: ${{ github.repository }}
           number: ${{ github.event.number }}
           id: version-not-updated-message
-          message: "The build settings version was not updated. Did you mean to do that?
-            - [ ] Increment patch
-            - [ ] Increment minor
+          message: "The build settings version was not updated. Did you mean to do that?\n
+            - [ ] Increment patch\n
+            - [ ] Increment minor\n
             - [ ] Increment major"
           recreate: true
 
