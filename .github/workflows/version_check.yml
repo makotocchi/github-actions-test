@@ -35,13 +35,6 @@ jobs:
           current_version=( $(jq '.version' ./current/build_settings.json))
           echo "OLD_VERSION=old_version" >> "$GITHUB_OUTPUT"
           echo "CURRENT_VERSION=current_version" >> "$GITHUB_OUTPUT"
-          echo "Old version is ${old_version:1:${#old_version}-2}"
-          echo "Current version is ${current_version:1:${#current_version}-2}"
-          if [ "${old_version}" != "${current_version}" ]; then
-            echo "Version updated"
-          else
-            echo "::warning file=build_settings.json,title=Version not updated::Version not updated"
-          fi
 
       - name: Comment if version not updated
         if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
