@@ -1,5 +1,5 @@
 name: Version Update
-run-name: Version Update for "${{ github.event.pull_request.title }}"
+run-name: Version Update for "${{ github.event.issue.title }}"
 on: 
   issue_comment:
     types: [edited]
@@ -44,3 +44,13 @@ jobs:
         with:
           commit_message: 'Increment version'
           branch: ${{ steps.comment-branch.outputs.head_ref }}
+
+      - name: Delete comment
+        if: success()
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.issue.number }}
+          id: version-not-updated-message
+          delete: true
