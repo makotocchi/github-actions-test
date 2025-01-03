@@ -43,7 +43,7 @@ jobs:
             echo "::warning file=build_settings.json,title=Version not incremented::Version not incremented"
           fi
 
-      - name: Check for version increment
+      - name: Comment if version not incremented
         if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
@@ -51,5 +51,15 @@ jobs:
           repository: ${{ github.repository }}
           number: ${{ github.event.number }}
           id: version-not-incremented-message
-          message: "Version not incremented"
+          message: "Version was not incremented. Did you mean to do that?"
           recreate: true
+
+      - name: Delete comment if version was incremented
+        if: steps.setter.outputs.OLD_VERSION != steps.setter.outputs.CURRENT_VERSION
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.number }}
+          id: version-not-incremented-message
+          delete: true
