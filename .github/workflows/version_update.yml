@@ -1,5 +1,5 @@
 name: Version Update
-run-name: Version Update for "${{ github.event.issue.title }}"
+run-name: Version Update for "${{ github.event.pull_request.title }}"
 on: 
   issue_comment:
     types: [edited]
@@ -14,10 +14,14 @@ jobs:
       pull-requests: write
 
     steps:
+      - uses: xt0rted/pull-request-comment-branch@v3
+        id: comment-branch
+
       - name: Check out current commit repository code
         uses: actions/checkout@v4
+        if: success()
         with:
-          ref: refs/pull/${{ github.event.issue.number }}/head
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
           sparse-checkout: |
             build_settings.json
 
@@ -39,4 +43,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'Increment version'
-          branch: refs/pull/${{ github.event.issue.number }}/head
+          branch: ${{ steps.comment-branch.outputs.head_ref }}
