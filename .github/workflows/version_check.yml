@@ -38,11 +38,11 @@ jobs:
 
       - name: Test output
         run: |
-          echo ${{ steps.setter.outputs.OLD_VERSION }}
-          echo ${{ steps.setter.outputs.CURRENT_VERSION }}
+          echo ${{ steps.version_check.outputs.OLD_VERSION }}
+          echo ${{ steps.version_check.outputs.CURRENT_VERSION }}
 
       - name: Comment if version not updated
-        if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
+        if: steps.version_check.outputs.OLD_VERSION == steps.version_check.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,7 +53,7 @@ jobs:
           recreate: true
 
       - name: Delete comment if version was updated
-        if: steps.setter.outputs.OLD_VERSION != steps.setter.outputs.CURRENT_VERSION
+        if: steps.version_check.outputs.OLD_VERSION != steps.version_check.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
