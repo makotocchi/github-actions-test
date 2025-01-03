@@ -1,6 +1,6 @@
 name: Version Check
 run-name: Version Check for "${{ github.event.pull_request.title }}"
-on: [pull_request_target]
+on: pull_request_target
 
 jobs:
   version-check:
@@ -30,7 +30,6 @@ jobs:
       - name: Check build_settings.json version
         id: version_check
         run: |
-          cd ${{ github.workspace }}
           old_version=( $(jq '.version' ./old/build_settings.json))
           current_version=( $(jq '.version' ./current/build_settings.json))
           echo "OLD_VERSION=old_version" >> "$GITHUB_OUTPUT"
@@ -49,7 +48,10 @@ jobs:
           repository: ${{ github.repository }}
           number: ${{ github.event.number }}
           id: version-not-updated-message
-          message: "The build settings version was not updated. Did you mean to do that?"
+          message: "The build settings version was not updated. Did you mean to do that?
+            - [ ] Increment patch
+            - [ ] Increment minor
+            - [ ] Increment major"
           recreate: true
 
       - name: Delete comment if version was updated
