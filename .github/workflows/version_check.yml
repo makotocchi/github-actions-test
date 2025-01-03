@@ -3,7 +3,7 @@ run-name: Version Check for "${{ github.event.pull_request.title }}"
 on: [pull_request_target]
 
 jobs:
-  version-fetch:
+  version-check:
 
     runs-on: ubuntu-latest
     permissions:
@@ -38,28 +38,28 @@ jobs:
           echo "Old version is ${old_version:1:${#old_version}-2}"
           echo "Current version is ${current_version:1:${#current_version}-2}"
           if [ "${old_version}" != "${current_version}" ]; then
-            echo "Version incremented"
+            echo "Version updated"
           else
-            echo "::warning file=build_settings.json,title=Version not incremented::Version not incremented"
+            echo "::warning file=build_settings.json,title=Version not updated::Version not updated"
           fi
 
-      - name: Comment if version not incremented
+      - name: Comment if version not updated
         if: steps.setter.outputs.OLD_VERSION == steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           number: ${{ github.event.number }}
-          id: version-not-incremented-message
-          message: "Version was not incremented. Did you mean to do that?"
+          id: version-not-updated-message
+          message: "The build settings version was not updated. Did you mean to do that?"
           recreate: true
 
-      - name: Delete comment if version was incremented
+      - name: Delete comment if version was updated
         if: steps.setter.outputs.OLD_VERSION != steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           number: ${{ github.event.number }}
-          id: version-not-incremented-message
+          id: version-not-updated-message
           delete: true
