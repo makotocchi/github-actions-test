@@ -14,10 +14,14 @@ jobs:
       pull-requests: write
 
     steps:
+      - uses: xt0rted/pull-request-comment-branch@v3
+        id: comment-branch
+
       - name: Check out current commit repository code
         uses: actions/checkout@v4
+        if: success()
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
           sparse-checkout: |
             build_settings.json
 
@@ -39,4 +43,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'Increment version'
-          branch: ${{ github.event.pull_request.head.ref }}
+          branch: ${{ steps.comment-branch.outputs.head_ref }}
