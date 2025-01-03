@@ -28,12 +28,13 @@ jobs:
             build_settings.json
 
       - name: Check build_settings.json version
+        id: version_check
         run: |
           cd ${{ github.workspace }}
           old_version=( $(jq '.version' ./old/build_settings.json))
           current_version=( $(jq '.version' ./current/build_settings.json))
-          echo "OLD_VERSION=old_version" >> "$GITHUB_ENV"
-          echo "CURRENT_VERSION=current_version" >> "$GITHUB_ENV"
+          echo "OLD_VERSION=old_version" >> "$GITHUB_OUTPUT"
+          echo "CURRENT_VERSION=current_version" >> "$GITHUB_OUTPUT"
           echo "Old version is ${old_version:1:${#old_version}-2}"
           echo "Current version is ${current_version:1:${#current_version}-2}"
           if [ "${old_version}" != "${current_version}" ]; then
@@ -43,7 +44,7 @@ jobs:
           fi
 
       - name: Check for version increment
-        if: OLD_VERSION != CURRENT_VERSION
+        if: steps.setter.outputs.OLD_VERSION != steps.setter.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
