@@ -8,9 +8,9 @@ jobs:
   version-update:
 
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request }}
+    if: ${{ github.event.issue.pull_request && github.event.comment.user.login == 'github-actions[bot]' }}
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
 
     steps:
@@ -21,8 +21,25 @@ jobs:
           sparse-checkout: |
             build_settings.json
 
-      - name: Check build_settings.json version
+      - name: Increment patch
+        if: ${{ contains(github.event.comment.body, '- [x] Increment patch') }}
         run: |
-          echo "yep it triggered"
-          echo "${{ github.event.comment.body }}"
-          echo "${{ github.event.comment.user.login }}"
+          jq '.version |= (split(".") | .[2] = ((.[2] | tonumber) + 1 | tostring) | join("."))' build_settings.json > build_settings.tmp && mv build_settings.tmp build_settings.json
+
+      - name: Increment minor
+        if: ${{ contains(github.event.comment.body, '- [x] Increment minor') }}
+        run: |
+          jq '.version |= (split(".") | .[1] = ((.[1] | tonumber) + 1 | tostring) | join("."))' build_settings.json > build_settings.tmp && mv build_settings.tmp build_settings.json
+
+      - name: Increment major
+        if: ${{ contains(github.event.comment.body, '- [x] Increment major') }}
+        run: |
+          jq '.version |= (split(".") | .[0] = ((.[0] | tonumber) + 1 | tostring) | join("."))' build_settings.json > build_settings.tmp && mv build_settings.tmp build_settings.json
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Increment version'
+          commit_options: '--no-verify'
+          repository: ${{ github.repository }}
+          branch: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
