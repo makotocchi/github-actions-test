@@ -1,0 +1,66 @@
+name: Version Check
+on: workflow_call
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Check out base branch repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: old
+          sparse-checkout: |
+            build_settings.json
+
+      - name: Check out current commit repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          path: current
+          sparse-checkout: |
+            build_settings.json
+
+      - name: Check build_settings.json version
+        id: version_check
+        run: |
+          old_version=( $(jq '.version' ./old/build_settings.json))
+          old_version=${old_version:1:${#old_version}-2}
+          current_version=( $(jq '.version' ./current/build_settings.json))
+          current_version=${current_version:1:${#current_version}-2}
+          echo "OLD_VERSION=$old_version" >> "$GITHUB_OUTPUT"
+          echo "CURRENT_VERSION=$current_version" >> "$GITHUB_OUTPUT"
+
+      - name: Test output
+        run: |
+          echo ${{ steps.version_check.outputs.OLD_VERSION }}
+          echo ${{ steps.version_check.outputs.CURRENT_VERSION }}
+
+      - name: Comment if version not updated
+        if: steps.version_check.outputs.OLD_VERSION == steps.version_check.outputs.CURRENT_VERSION
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.number }}
+          id: version-not-updated-message
+          message: "The build settings version was not updated. Did you mean to do that?\n
+            Click one of the options below if you want me to update the version.\n
+            - [ ] Increment patch\n
+            - [ ] Increment minor\n
+            - [ ] Increment major"
+          recreate: true
+
+      - name: Delete comment if version was updated
+        if: steps.version_check.outputs.OLD_VERSION != steps.version_check.outputs.CURRENT_VERSION
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.number }}
+          id: version-not-updated-message
+          delete: true
