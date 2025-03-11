@@ -33,13 +33,25 @@ jobs:
           old_version=${old_version:1:${#old_version}-2}
           current_version=( $(jq '.version' ./current/build_settings.json))
           current_version=${current_version:1:${#current_version}-2}
+          patch_incremented=( $(jq '.version | (split(".") | .[2] = ((.[2] | tonumber) + 1 | tostring) | join("."))' ./current/build_settings.json))
+          patch_incremented=${patch_incremented:1:${#patch_incremented}-2}
+          minor_incremented=( $(jq '.version | (split(".") | .[1] = ((.[1] | tonumber) + 1 | tostring) | join("."))' ./current/build_settings.json))
+          minor_incremented=${minor_incremented:1:${#minor_incremented}-2}
+          major_incremented=( $(jq '.version | (split(".") | .[0] = ((.[0] | tonumber) + 1 | tostring) | join("."))' ./current/build_settings.json))
+          major_incremented=${major_incremented:1:${#major_incremented}-2}
           echo "OLD_VERSION=$old_version" >> "$GITHUB_OUTPUT"
           echo "CURRENT_VERSION=$current_version" >> "$GITHUB_OUTPUT"
+          echo "PATCH_INCREMENTED=$patch_incremented" >> "$GITHUB_OUTPUT"
+          echo "MINOR_INCREMENTED=$minor_incremented" >> "$GITHUB_OUTPUT"
+          echo "MAJOR_INCREMENTED=$major_incremented" >> "$GITHUB_OUTPUT"
 
       - name: Test output
         run: |
-          echo ${{ steps.version_check.outputs.OLD_VERSION }}
-          echo ${{ steps.version_check.outputs.CURRENT_VERSION }}
+          echo Old version: ${{ steps.version_check.outputs.OLD_VERSION }}
+          echo New version: ${{ steps.version_check.outputs.CURRENT_VERSION }}
+          echo Patch incremented: ${{ steps.version_check.outputs.PATCH_INCREMENTED }}
+          echo Minor incremented: ${{ steps.version_check.outputs.MINOR_INCREMENTED }}
+          echo Major incremented: ${{ steps.version_check.outputs.MAJOR_INCREMENTED }}
 
       - name: Comment if version not updated
         if: steps.version_check.outputs.OLD_VERSION == steps.version_check.outputs.CURRENT_VERSION
@@ -50,10 +62,12 @@ jobs:
           number: ${{ github.event.number }}
           id: version-not-updated-message
           message: "The build settings version was not updated. Did you mean to do that?\n
+            Old version: ${{ steps.version_check.outputs.OLD_VERSION }}\n
+            Current version: ${{ steps.version_check.outputs.CURRENT_VERSION }}\n
             Click one of the options below if you want me to update the version.\n
-            - [ ] Increment patch\n
-            - [ ] Increment minor\n
-            - [ ] Increment major"
+            - [ ] Increment patch (${{ steps.version_check.outputs.PATCH_INCREMENTED }})\n
+            - [ ] Increment minor (${{ steps.version_check.outputs.MINOR_INCREMENTED }})\n
+            - [ ] Increment major (${{ steps.version_check.outputs.MAJOR_INCREMENTED }})"
           recreate: true
 
       - name: Delete comment if version was updated
