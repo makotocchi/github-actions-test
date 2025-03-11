@@ -54,7 +54,7 @@ jobs:
           echo Major incremented: ${{ steps.version_check.outputs.MAJOR_INCREMENTED }}
 
       - name: Comment if version not updated
-        if: steps.version_check.outputs.OLD_VERSION == steps.version_check.outputs.CURRENT_VERSION
+        if: steps.version_check.outputs.OLD_VERSION >= steps.version_check.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
           recreate: true
 
       - name: Delete comment if version was updated
-        if: steps.version_check.outputs.OLD_VERSION != steps.version_check.outputs.CURRENT_VERSION
+        if: steps.version_check.outputs.OLD_VERSION < steps.version_check.outputs.CURRENT_VERSION
         uses: hasura/comment-progress@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
